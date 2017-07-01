@@ -15,3 +15,5 @@ public class StaticClassClass {
         return StaticClassClassInternal.instance;
     }
 }
+
+
