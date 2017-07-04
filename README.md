@@ -33,20 +33,32 @@
     尽量不修改原有代码；但要方便扩展功能
 ~~~
 
-#### 注解学习：额外增加的，下面有些模式要用到
+#### 注解-Annotation :额外增加的，下面有些模式要用到
 * 元注解：用来注解 注解 的注解；
     1. @Target：表示注解的目标是类、方法还是哪里
-        * ElementType.xx
-        * CONSTRUCTOR：构造器；FIELD：作用域；LOCAL_VARIABLE:局部变量；METHOD：方法；
+        * ElementType.xx或{ElementType.xx,ElementType.xxx}
+        * CONSTRUCTOR：构造器；FIELD：属性；LOCAL_VARIABLE:局部变量；METHOD：方法；
         * PACKAGE:包；PARAMETER:参数；TYPE:类、接口、枚举等
         * TYPE_PARAMETER:类型注解,<T>、<? extends A>等；TYPE_USE：可以任何用到类型的位置使用，例如用new关键字创建对象、类型转换、使用implements实现接口、throws等
-    2. @Retention:表示该注解类的作用域/生命周期/保留周期
+    2. @Retention:表示该注解类的作用域/生命周期/保留周期，默认为CLASS
         * RetentionPolicy.xx
         * SOURCE:源文件；CLASS：class/字节码文件；RUNTIME:运行时
+        * 一般只写RUNTIME，只有该注解才能动态获取参数
     3. @Documented：表示该注解会被javadoc文档化
     4. @Inherited：表示该注解是否有继承性，也就是父类被注解，子类继承父类后，是否也相当于被注解
     5. @Repeatable：表示是否可以重复使用该注解在同一语句
-
+* 注解中于允许的参数：
+        * 所有基本类型(byte,int,short,long,float,double,char,boolean)
+        * String
+        * Class
+        * enum
+        * Annotation
+        * 以上所有类型的数组类型
+* 当注解中的属性的名字为value时，注解时直接写xxx(a),a就会被赋值给属性名为value的属性
+* Class<T>： 如果使用了@Repeatable注解，使A注解可以重复注解一个类(此时应该配置As类),且在B类上使用了多个A注解，但此时想要获取A注解获取不到的，只能获取到As注解（该注解包含A[]属性）
+    getAnnotations()/Annotation[]:获取该类所有的注解；
+    getAnnotation(Class<A>)/A:获取该类指定类型的注解；
+    getDeclaredField()：该方法才能获取到private字段，Declared意思应该不是公开的，而是所有存在的的意思
 ####单例模式-Singleton
 使用单例模式的类的显著特点：
     一个类没有自己的状态，就是一个类创建一个和创建多个是一样的。
@@ -183,7 +195,9 @@ public class A {
     该代理类除了实现自身接口，还继承了Proxy类；然后有所有被代理类的方法(Method类型)的静态属性；
     每次执行任何方法时，都会先调用Proxy类中的h(动态代理类(实现InvocationHandler接口的类))的invoke方法，并将必要的实参传入
 
-#### 工厂模式-factory:创建不同的类-如果需要修改产品类的构造方法，只需要修改工厂类中的一处就可以了
+#### 工厂模式-factory:
+创建不同的类-如果需要修改产品类的构造方法，只需要修改工厂类中的一处就可以了；
+此外，假设产品是某个功能需要的东西，如果通过工厂模式创建，隐藏内部细节，那么日后想要更换具体产品也很容易，只需自己在内部更换就可以了，否则如果是普通的new的方式，已经多出耦合了
 * 简单工厂模式-一个工厂类创造所有的产品
     * 扩展时需要修改工厂类代码
     
@@ -194,8 +208,14 @@ public class A {
     
 ![](img/2.png)
 ---
-* 抽象工厂模式-
+* 抽象工厂模式-和工厂模式类似，不过每个具体工厂需要生产一整个产品系列(产品分为多个系列，每个系列都有单独的Factory;其中，如果有A、B两个抽象产品，则A1、B1两个具体产品为一个系列)
     
+![](img/3.png)
+
+1. 首先从简单工厂进化到工厂方法，是因为工厂方法弥补了简单工厂对修改开放的弊端，即简单工厂违背了开闭原则。
+2. 从工厂方法进化到抽象工厂，是因为抽象工厂弥补了工厂方法只能创造一个系列的产品的弊端。
+
+#### 观察者模式/发布订阅模式-Observer:一个类管理所有依赖于它的类，并在自身发生变化时主动给依赖它的类发出通知
 
 
 

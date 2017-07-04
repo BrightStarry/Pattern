@@ -9,11 +9,16 @@
       <sourceFolder url="file://$MODULE_DIR$/src/main/singleton" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/main/proxy" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/main/factory" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/main/annotation" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/main/observer" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/target" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" scope="TEST" name="Maven: junit:junit:4.12" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: org.hamcrest:hamcrest-core:1.3" level="project" />
+    <orderEntry type="library" name="Maven: org.reflections:reflections:0.9.11" level="project" />
+    <orderEntry type="library" name="Maven: com.google.guava:guava:20.0" level="project" />
+    <orderEntry type="library" name="Maven: org.javassist:javassist:3.21.0-GA" level="project" />
   </component>
 </module>
