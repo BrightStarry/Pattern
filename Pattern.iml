@@ -11,6 +11,7 @@
       <sourceFolder url="file://$MODULE_DIR$/src/main/factory" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/main/annotation" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/main/observer" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/main/strategy" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/target" />
     </content>
     <orderEntry type="inheritedJdk" />
