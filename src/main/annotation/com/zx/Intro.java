@@ -126,3 +126,19 @@ class BaoNv{
     
     private Integer speed;
 }
+
+interface AA{
+    void doQ();
+    void doW();
+}
+abstract class BB implements AA{
+    @Override
+    public void doQ(){}
+}
+class CC extends  BB{
+
+    @Override
+    public void doW() {
+
+    }
+}

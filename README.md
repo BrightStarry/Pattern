@@ -133,7 +133,7 @@
     在进行完原子操作后，也不会发生上述情况；即使不是这样，加上volatile关键词后，防止指令重排序后，应该也不会产生bug。(synchronized可以禁止指令重排序)
     (...原来博客主已经在文章末尾说了可以加volatile，不过他没有写synchronized可以禁止指令重排序)
 ~~~
-4. 静态内部类模式-staticClass(据说最佳；使用时时初始化静态内部类，初始化静态内部类时加载对象，同时线程安全；相比双重检查锁模式，少了每次判断是否为空的步骤)
+4. 静态内部类模式-staticClass(据说最佳；使用时时初始化静态内部类，初始化静态内部类时加载对象，同时线程安全；如果构造方法抛出异常，则永远获取不到该实例)
 ~~~
     public class StaticClassClass {
         //私有化构造方法
@@ -241,6 +241,140 @@ public class A {
             6. 在该动态代理实例中，调用invoke()方法时，只要是算法方法，就根据有序集合的顺序，一次执行每个策略实现类的算法，得到最终的优惠金额，返回()
         ~~~
 ---
-#### 适配器模式-
+#### 适配器模式-adapter：复用代码，实现指定接口；或
+适配器模式从实现方式上分为类适配器和对象适配器，这两种的区别在于实现方式上的不同，一种采用继承，一种采用组合的方式。
+从使用目的上来说，分为特殊适配器和缺省适配器，这两种的区别在于使用目的上的不同，一种为了复用原有的代码并适配当前的接口，一种为了提供缺省的实现，避免子类需要实现不该实现的方法。
 
+场景通常情况下是，系统中有一套完整的类结构，而我们需要利用其中某一个类的功能（通俗点说可以说是方法），但是我们的客户端只认识另外一个和这个类结构不相关的接口，
+这时候就是适配器模式发挥的时候了，我们可以将这个现有的类与我们的目标接口进行适配，最终获得一个符合需要的接口并且包含待复用的类的功能的类。
 
+* 类适配器：采用继承/实现；针对适配目标是接口，为复用代码
+    * 例如，想要让HashMap实现Observer(观察者,订阅者)接口，当被观察者发生变化，则调用观察者接口的update方法将HashMap清空，则可如下写，
+        也就是继承要复用的类，实现要适配的接口，而后在要适配的方法中调用父类的方法来实现；
+        ~~~
+         public class HashMapOAdapterObserver<K,V> extends HashMap<K,V> implements Observer{
+              @Override
+               public void update(Observable o,Object arg){
+                   super.clear();
+               }
+         }
+       ~~~
+* 对象适配器：采用组合；为针对适配目标为类，或需要复用的对象多于一个，复用代码
+    * A方式：此方式需要复制接口的方法，繁琐，容易出错
+        * 例如，有一个User类，已经继承了BaseEntity，现在需要复用它，让它实现Observable(被观察者，发布者)接口
+        ~~~
+            public class User extends BaseEntity{
+                private Long id;
+                private String name;
+                
+                do geter/seter ...
+            }
+        ~~~
+        * 则可以适配器类继承User，然后组合上Observable接口
+        ~~~
+            class UserAdapterObservable extends User{
+                private Observable observable = new Observable();
+                //复制Observable接口的所有方法到下面，并自行实现
+            }
+        ~~~
+    * B方式：    
+        * 同上，有一个User类
+        * 则可以扩展BaseEntity类,然后User直接继承该类即可
+            ~~~
+                public class BaseEntityAdapterObservable extends BaseEntity  //或者可以直接implements Observable{
+                     private Observable observable = new Observable();
+                     //复制Observable接口的所有方法到下面，并自行实现
+                }
+            ~~~
+* 缺省适配器：接口设计未遵守最小原则，导致一个类实现一个接口后有许多方法空着
+    * 例如如下A接口,但是对于B类来说，实现该接口doA()方法用不着，只能空着。
+        ~~~
+            public interface A{
+                void doQ();
+                void doW();
+                void doE();
+                void doR();
+                void doA();
+            }
+        ~~~
+    * 则可以使用如下适配器适配A接口和B类,B类只需要继承这个类，然后重写想要实现的功能就可以了。
+        ~~~
+            public class AAdapter implements A{
+                public void doQ(){
+                }
+                public void doW(){
+                }                
+                public void doE(){
+                }
+                public void doR(){
+                }  
+                public void doA(){
+                }                                             
+            }
+        ~~~
+        不过我认为还可以这么写，使用抽象类；该抽象类实现A接口后，只实现了doA方法，那么如果B继承该抽象类，则还需实现其他四个方法
+        ~~~
+            public abstract class AAdapter implements A{
+                @Override
+                public void doA(){
+                }                                             
+            }
+        ~~~
+---
+#### 模版方法模式-template：定义好子类实现算法的顺序、步骤或者说是在父类的骨架/规范/基础上自行补充扩展
+具体例子如下，就是一个模版类中定义好一些东西，只定义顺序，不定义骨架也是可以的，然后子类继承模版类，实现想要实现的方法即可。
+下面的是生成英雄简介的方法，定义好了简介的开头和结尾，中间的部分由每个英雄简介子类自行实现，也可以不实现（则返回"",也可以不使用抽象类）
+~~~
+/**
+ * 模版接口
+ */
+interface HeroIntroFactory{
+    //生成英雄简介的方法
+    String createIntro();
+}
+/**
+ * 模版类
+ */
+abstract class CreateIntroTemplate implements HeroIntroFactory{
+    /**
+     * 生成英雄简介的方法
+     */
+    @Override
+    public String createIntro() {
+        //所有简介开头都需如此
+        StringBuilder sb = new StringBuilder("在遥远的东方，有一片大陆，世人称之为符文大陆");
+        //然后是英雄出场的介绍
+        sb.append(come());
+        //然后是英雄的一生
+        sb.append(body());
+        //统一的结尾
+        sb.append("这便是他的故事，这般结束！");
+        return sb.toString();
+    }
+    /**
+     * 英雄出场介绍,留给子类实现，也可以不实现
+     */
+    abstract String come();
+    /**
+     * 英雄的一生故事，留给子类实现，也可以不是实现
+     */
+    abstract String body();
+}
+/**
+ *模版子类
+ */
+class AKLIntro extends CreateIntroTemplate{
+
+    @Override
+    String come() {
+        return "是夜，皎皎月光流动，只见一黑衣蒙面的身影一闪而过。";
+    }
+
+    @Override
+    String body() {
+        return "阿卡丽经历生死、爱恨，终此一生，未曾离开符文大陆。";
+    }
+}
+~~~
+---
+#### 装饰者模式
