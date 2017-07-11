@@ -13,6 +13,15 @@
       <sourceFolder url="file://$MODULE_DIR$/src/main/observer" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/main/strategy" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/main/template" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/main/decorator" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/main/command" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/main/mediator" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/main/bridge" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/main/builder" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/main/memento" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/main/iterator" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/main/flyweight" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/main/composite" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/target" />
     </content>
     <orderEntry type="inheritedJdk" />
