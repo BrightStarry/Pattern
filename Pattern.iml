@@ -22,6 +22,7 @@
       <sourceFolder url="file://$MODULE_DIR$/src/main/iterator" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/main/flyweight" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/main/composite" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/main/chain" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/target" />
     </content>
     <orderEntry type="inheritedJdk" />
