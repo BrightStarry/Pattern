@@ -218,6 +218,108 @@ public class A {
 
 ---
 #### 4.观察者模式/发布订阅模式-Observer:一个类管理所有依赖于它的类，并在自身发生变化时主动给依赖它的类发出通知
+简述：
+    观察者：实现观察者接口(update()方法)，在该方法的实现中，可以使用拉模型(被观察者将自身传入，由观察者自己拉取需要的数据)；或推模型(被观察者传入特定的数据，观察者只能获取到这些数据)
+    被观察者：有一个被观察者超类； 维护了一个观察者集合、一个通知所有观察者的方法(在该方法中遍历集合，调用所有观察者的update()方法)，以及一些增删、判断是否变化的方法属性
+
+JDK中已经实现了对应的接口、类
+* Observer-观察者接口-JDK源码：只要一个update()方法，
+* Observable-被观察者-JDK源码
+~~~
+/**
+ * 被观察者-JDK源码
+ */
+public class Observable {
+    //该对象数据是否发生变化
+    private boolean changed = false;
+    //观察者集合
+    private Vector<Observer> obs;
+    //创建时初始化观察者集合
+    public Observable() {
+        obs = new Vector<>();
+    }
+    /**
+     * 增加一个观察者
+     */
+    public synchronized void addObserver(Observer o) {
+        if (o == null)
+            throw new NullPointerException();
+        if (!obs.contains(o)) {
+            obs.addElement(o);
+        }
+    }
+    /**
+     * 删除一个观察者
+     */
+    public synchronized void deleteObserver(Observer o) {
+        obs.removeElement(o);
+    }
+    /**
+     * 调用下面的通知所有观察者方法，不传入参数
+     * 拉模型，由观察者自己从该类中拉取数据，
+     */
+    public void notifyObservers() {
+        notifyObservers(null);
+    }
+    /**
+     * 通知所有观察者
+     * 该方法为了确保线程安全，使用了和CopyOnWriteList类似的处理方式
+     * 同步地判断该被观察者是否发生了变化，如果发生了，就同步地拷贝当前所有的观察者到临时副本
+     * 然后遍历这个临时副本(如果不这样做，此时如果Vector增加或减少了观察者，则会有错误（增加倒还好，多通知一个，如果减少了已经遍历过的下标的之前的一个，则会重复调用update()）)
+     * 另外，此处的遍历也有所缺陷，如果update()发生异常，则后面的所有观察者都无法收到通知了；
+     *
+     * 传入参数表示推模型，被观察者直接推送数据到观察者的update()方法中
+     */
+    public void notifyObservers(Object arg) {
+        //临时缓存数组，用来保存当前观察者的副本
+        Object[] arrLocal;
+        synchronized (this) {
+            //如果没有变化，直接返回
+            if (!changed)
+                return;
+            //如果变化了
+            //保存当前所有观察者的副本
+            arrLocal = obs.toArray();
+            //清空变化状态
+            clearChanged();
+        }
+        //在副本中遍历每个观察者，调用其update()方法，获取新数据
+        for (int i = arrLocal.length-1; i>=0; i--)
+            ((Observer)arrLocal[i]).update(this, arg);
+    }
+    /**
+     * 删除所有观察者.同步
+     */
+    public synchronized void deleteObservers() {
+        obs.removeAllElements();
+    }
+    /**
+     * 设置 是否发生变化 的标记为true，同步
+     */
+    protected synchronized void setChanged() {
+        changed = true;
+    }
+    /**
+     * 设置 是否发生变化 的标记为false，同步
+     * 表示已经通知完所有的观察者，或取消变化
+     */
+    protected synchronized void clearChanged() {
+        changed = false;
+    }
+    /**
+     * 返回 是否发生变化
+     */
+    public synchronized boolean hasChanged() {
+        return changed;
+    }
+    /**
+     * 返回当前观察者个数
+     */
+    public synchronized int countObservers() {
+        return obs.size();
+    }
+}
+~~~
 
 ---
 #### 5.策略模式-strategy：在一个需要多种算法不同实现的地方，可以方便的替换
@@ -461,6 +563,96 @@ class AKLIntro extends CreateIntroTemplate{
 * 非叶子节点包含了一个通用接口集合(存储若干叶子节点或非叶子节点)，实现了通用接口的所有方法
 * 叶子节点和非叶子节点都包含了上级对象的引用；
 ---
-#### 18.指责链模式-chain:为了避免请求的发送者和接收者之间的耦合关系，使多个接受对象都有机会处理请求。将这些对象连成一条链，并沿着这条链传递该请求，直到有一个对象处理它为止
-设计模式果然强大，我看到这样的模式说明，第一个想的也是放一堆请求处理对象在list里，然后遍历进行请求。
+#### 18.职责链模式-chain:为了避免请求的发送者和接收者之间的耦合关系，使多个接受对象都有机会处理请求。将这些对象连成一条链，并沿着这条链传递该请求，直到有一个对象处理它为止
+设计模式果然强大，我看到这样的模式说明，第一个想的也是放一堆请求处理对象在list里，然后遍历进行请求处理，直到处理成功。
+* 处理类接口，有 处理请求 和 设置下一个处理类 两个方法
+* 处理类，实现处理类接口；
+* 那么在运行时，只要构造若干处理类，然后使用 设置下一个处理类 方法进行关联，串成一个链即可。
+* 那么在调用 处理请求 方法时，如果可以处理，则处理；如果不行，则调用该处理类保存的下一个处理类的引用的 处理方法进行处理
+---
+#### 19.状态模式-state:一个类的状态(属性)改变时，行为(方法)也将发生改变
+感觉是策略模式的升级版
+* 需要改变的方法接口：定义了所有需要根据状态变化而变化的方法,例如a(),b()两个方法
+* 方法接口的若干实现类：实现了方法接口，每个实现类就是方法一种变化;例如A实现类a()b()方法是输出1，2；B实现类a()b()方法是输出3，4
+* 一个需要使用状态模式的类，有方法接口这么一个属性。然后可以通过set方法改变方法接口的实现类；即可修改其行为;
+    如果需要关联到属性，则可以在相关属性被修改的时候调用该方法修改接口实现类即可;
+    该类中可以一直存储着所有方法接口的实现类，就不需要每次改变时都new了
+---
+#### 20.访问者模式-visitor:提供若干类，使用不同的方式来访问一个类中的元素；被访问类需要比较稳定，元素不用新增；访问类可以方便的增加
+类图： 
+![](img/8.png)
 
+静态分派：方法在编译时即可知道运行的结果，例如(重载)
+多分派，java中的静态分配是多分派，因为需要考虑多个重载方法(根据参数类型判断)
+~~~
+public class Main {  
+    public void test(String string){  
+        System.out.println("string");  
+    }  
+    public void test(Integer integer){  
+        System.out.println("integer");  
+    }  
+    public static void main(String[] args) {  
+        String string = "1";  
+        Integer integer = 1;  
+        Main main = new Main();  
+        main.test(integer);  
+        main.test(string);  
+    }  
+}  
+~~~
+动态分派：方法在编译时不清楚运行结果，例如(多态)
+单分派，java中的动态分派是单分派；在多态中，只要确定了类类型，就只有一个方法实现，所以是单分派
+~~~
+interface Person{  
+    void test();  
+}  
+class Man implements Person{  
+    public void test(){  
+        System.out.println("男人");  
+    }  
+}  
+class Woman implements Person{  
+    public void test(){  
+        System.out.println("女人");  
+    }  
+}  
+public class Main {  
+    public static void main(String[] args) {  
+        Person man = new Man();  
+        Person woman = new Woman();  
+        man.test();  
+        woman.test();  
+    }  
+}  
+~~~
+伪动态双分派：在该模式中，
+~~~
+ //偷窥者偷窥女人
+    public void peep(Peeper peeper) {
+        //遍历偷窥所有女人
+        womanList.forEach(woman -> {
+            woman.accept(peeper);
+        });
+    }
+~~~
+woman.accept(peeper);该方法的运行结果，首先根据woman的类类型判断调用了哪个子类的accept方法，然后在accept方法中
+~~~
+ public void accept(Peeper peeper) {
+        //调用偷窥者的偷窥方法
+        peeper.peep(this);
+    }
+~~~
+又根据了Peeper的类类型，判断调用了哪个子类的peep方法，然后根据this这个参数来确认调用peep(Lolita lolita)还是peep(Sister sister)（这一步是静态分配）
+
+---
+#### 21.原型模式-prototype:拷贝一个对象
+* JDK中的Object类已经提供了clone()方法，任何实现了Cloneable接口的类都可以使用该方法；
+* 该方法不调用构造函数，效率比new高；它直接对内存块进行复制
+* 该方法是浅拷贝：属性对象的引用都是原对象的属性，除了int、double这种值传递的类更改值不受影响外；其他引用传递的属性，修改后，原对象的属性也会被修改；
+* 如果需要深拷贝，那么原类中所有引用类型的属性都需要继承Cloneable，并重写cloneable方法
+
+---
+#### 22.解释器模式-interpreter:该模式就是写一个编译器，自定义编译语法(功力不够，暂不学习)
+
+END-2017年7月13日 15:37:26
