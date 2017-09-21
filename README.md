@@ -80,7 +80,7 @@
         }
     }
 ~~~
-2. 饱汉模式-hungry(实例直接创建)
+2. 饿汉模式-hungry(实例直接创建)
 ~~~
     public class HungryClass {
         //私有化构造方法
