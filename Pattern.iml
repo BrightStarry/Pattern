@@ -24,6 +24,7 @@
       <sourceFolder url="file://$MODULE_DIR$/src/main/composite" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/main/chain" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/main/visitor" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/main/reflect" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/target" />
     </content>
     <orderEntry type="inheritedJdk" />
